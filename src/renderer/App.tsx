@@ -62,35 +62,35 @@ function App() {
   const [index, setIndex] = useState(0);
   const [rowData, setRowData] = useState([
     {
-      profilePath: 'Toyota',
+      profilePath: 'Toyota 1',
       name: 'Celica',
       proxy: 'proxy',
       userAgent: 'ua',
       websiteTarget: 'web',
     },
     {
-      profilePath: 'Toyota',
+      profilePath: 'Toyota 2',
       name: 'Celica',
       proxy: 'proxy',
       userAgent: 'ua',
       websiteTarget: 'web',
     },
     {
-      profilePath: 'Toyota',
+      profilePath: 'Toyota 3',
       name: 'Celica',
       proxy: 'proxy',
       userAgent: 'ua',
       websiteTarget: 'web',
     },
     {
-      profilePath: 'Toyota',
+      profilePath: 'Toyota 4',
       name: 'Celica',
       proxy: 'proxy',
       userAgent: 'ua',
       websiteTarget: 'web',
     },
     {
-      profilePath: 'Toyota',
+      profilePath: 'Toyota 5',
       name: 'Celica',
       proxy: 'proxy',
       userAgent: 'ua',
@@ -100,6 +100,7 @@ function App() {
   const [rangeSelected, setRangeSelected] = useState([0, 0]);
   const [selectionSelected, setSelectionSelected] = useState([]);
   const [display, setDisplay] = useState(false);
+  const [UARandom, setUARandom] = useState([]);
   const [columnDefs] = useState([
     // { field: "pick", headerName: "Chọn", checkboxSelection: true },
     {
@@ -156,6 +157,25 @@ function App() {
   const [isOpen, setIsOpen] = useState(false);
 
   function closeModal() {
+    // save UA
+
+
+    // random follow UA
+
+    
+    const { api } = gridRef.current;
+    const cloneRowData = [...rowData];
+    if (typeSelect === 'selection') {
+      for (let i = 0; i < selectionSelected.length; i++) {
+        //random all with selection
+      }
+    } else {
+      for (let i = rangeSelected[0]; i < rangeSelected[1]; i++) {
+        //random all with range
+      }
+    }
+    setRowData(cloneRowData);
+    api.setRowData(rowData);
     setIsOpen(false);
   }
 
@@ -176,9 +196,21 @@ function App() {
         // custom item
         name: 'Random Auto From Selection',
         action() {
+          //get UA from DB
+          const { api } = gridRef.current;
+          const cloneRowData = [...rowData];
+          if (typeSelect === 'selection') {
+            for (let i = 0; i < selectionSelected.length; i++) {
+              //random all with selection
+            }
+          } else {
+            for (let i = rangeSelected[0]; i < rangeSelected[1]; i++) {
+              //random all with range
+            }
+          }
+          setRowData(cloneRowData);
+          api.setRowData(rowData);
           setIsOpen(true);
-          if (typeSelect === 'selection') console.log(selectionSelected);
-          else console.log(rangeSelected[0], rangeSelected[1]);
         },
         cssClasses: ['font-bold'],
       },
@@ -186,8 +218,20 @@ function App() {
         // custom item
         name: 'Random Auto All ',
         action() {
-          if (typeSelect === 'selection') console.log(selectionSelected);
-          else console.log(rangeSelected[0], rangeSelected[1]);
+          // get All UA from DB an random
+          const { api } = gridRef.current;
+          const cloneRowData = [...rowData];
+          if (typeSelect === 'selection') {
+            for (let i = 0; i < selectionSelected.length; i++) {
+              //random all with selection
+            }
+          } else {
+            for (let i = rangeSelected[0]; i < rangeSelected[1]; i++) {
+              //random all with range
+            }
+          }
+          setRowData(cloneRowData);
+          api.setRowData(rowData);
         },
         cssClasses: ['font-bold'],
       },
@@ -285,7 +329,29 @@ function App() {
     }
     return params.data;
   };
-
+  const deleteFileData = () => {
+    const { api } = gridRef.current;
+    let cloneRowData = [...rowData];
+    if (typeSelect === 'selection') {
+      for (let i = 0; i < selectionSelected.length; i++) {
+        //delete with selection
+        cloneRowData = cloneRowData.filter(
+          (p, index) => index != selectionSelected[i]
+        );
+      }
+    } else {
+      for (let i = rangeSelected[0]; i < rangeSelected[1]; i++) {
+        // delete with range
+        cloneRowData = cloneRowData.filter((p, index) => index != i);
+      }
+    }
+    setRowData(cloneRowData);
+    api.setRowData(rowData);
+    // update delete here
+  };
+  const uaChange = (e: any) => {
+    setUARandom(e.target.value.split(','));
+  };
   return (
     <div className="mt-2">
       <div className="grid grid-cols-5 mx-10">
@@ -433,7 +499,10 @@ function App() {
               <div></div>
             </div> */}
             <div className="border border-gray-300 rounded-lg mt-5 p-10 pb-2 mb-5">
-              <div className="ag-theme-alpine h-96" style={{ width: '100%' }}>
+              <div
+                className="ag-theme-alpine h-96"
+                style={{ width: '100%', height: '200px' }}
+              >
                 <AgGridReact
                   ref={gridRef}
                   rowData={rowData}
@@ -456,6 +525,7 @@ function App() {
               {window.electronAPI.browser.get('browser')}
               <div className="flex justify-end">
                 <button
+                  onClick={() => deleteFileData()}
                   type="button"
                   className="h-10 px-5 m-2 text-white transition-colors duration-150 bg-red-400 rounded-lg focus:shadow-outline hover:bg-red-600"
                 >
@@ -521,7 +591,11 @@ function App() {
                       </Dialog.Title>
                       <div className="mt-2">
                         <p className="text-sm text-gray-500">
-                          <textarea className="w-full h-96" />
+                          <textarea
+                            className="w-full h-96"
+                            value={UARandom}
+                            onChange={uaChange}
+                          />
                         </p>
                       </div>
 
